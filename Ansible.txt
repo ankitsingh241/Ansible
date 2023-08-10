@@ -1,0 +1,114 @@
+
+
+This is our first lab of Ansible.
+
+1. create three linux instances named Ansible server, node1 and node2.
+   connect them through Putty or Mobaxterm.
+
+2. Use these commands in 
+   
+   Ansible-server
+   
+   sudo su
+   wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+   yum install epel-release-latest-9.noarch.rpm
+   yum install git python python-level python-pip ansible openssl -y
+   ansible --version(just to check if it is installed or not)
+   
+   Hosts file is a file in which you can add your nodes for communication among them.
+
+   vi /etc/ansible/hosts (hosts file is located in that path)
+   [demo] (name of the group and paste the private IP of the nodes)
+   172.31.41.240
+   172.31.42.228
+
+   vi /etc/ansible/ansible.cfg (configuration file has to be change to work hosts file)
+   uncomment inventory
+   uncomment sudo_user
+   
+   adduser ansible
+   passwd ansible (enter and type password)
+   
+3. Now we will add user in both nodes
+
+   Node-1                         Node-2
+
+   sudo su                        sudo su
+   adduser ansible                adduser ansible
+   passwd ansible                 passwd ansible
+ 
+4. To give the root access to ansible user use command
+
+   visudo (scroll down and got to root and below root type)
+   ansible ALL=(ALL) NOPASSWD: ALL
+   do it in all instances.
+
+   su - ansible (run this command in all three server so that you can be ansible user)
+
+   sudo yum install httpd -y (packages will start downloading this shows that ansible has root access now)
+    
+5. Now to establish connection between Server and nodes use
+
+   vi /etc/ssh/sshd_config (do not forget to exit form ansible user)
+   uncomment PermitRootLogin yes
+   uncomment PasswordAuthentication yes
+   comment out PasswordAuthentication no
+
+   service sshd restart (this will apply the changes in config files)
+
+   do it in all three instances.
+
+6. su - ansible (in all three instances)
+   
+   now go to Ansible server
+   
+   ssh 172.31.41.240 (private IP of node1)
+   password : enter the password
+
+   Now you are logged into node1 so whatever change you will make here will reflect in node1 server.
+
+   Similarly you can do it for node2.
+
+If you want to connect to a node through server each time you have to enter password.
+To avoid authentication every time we have to make a key in server and copy it in all nodes
+so whenever you will access node you dont have to enter password node will see the key and authenticate itself.
+
+7. Ansible server
+
+   su - ansible
+   ssh-keygen enter enter enter
+   ls -a
+   cd .ssh/
+   ls (you will have 2 keys public and private)
+
+   ssh-copy-id ansible@172.31.41.240(private ip of node1)
+   enter password last time.
+    
+   ssh-copy-id ansible@172.31.42.228(privat e ip of node2)
+   enter password last time.
+
+   cd..
+
+   ssh 172.31.41.240
+
+   Now they are not asking password to authenticate you will directly logged into it.
+
+Suppose you have 10 nodes and you want details of any perticular node or group.
+These are the commands that will help :
+
+8. ansible all --list-hosts
+   It will show details of all nodes in inventory file. 
+
+   ansible demo --list-hosts
+   It will show details of all nodes in demo group.
+
+   ansible demo [0] --list-hosts
+   It will show you the details of demo's first node.
+   0 1 2 3 4 5 6 7 8 9 (indicator of all 10 nodes)
+   for last node use -1 2nd last -2
+
+   ansible demo [1:4] --list-hosts
+   It will show detailes of range i.e. 2-5 nodes.
+
+   
+    
